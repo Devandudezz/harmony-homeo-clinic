@@ -1,0 +1,281 @@
+{% extends 'base.html' %}
+{% load static %}
+
+<!-- For Title on the Browser Tab -->
+{% block title %}All Patients{% endblock title %}
+
+<!-- NAVBAR CONTENT ICON + TITLE -->
+{% block nav-content %}
+<i class="fas fa-hospital-user"></i>&nbsp;&nbsp; Patients
+{% endblock nav-content %}
+
+<!-- Time -->
+{% block time %}
+<div class="col-sm">
+    <center>
+        <span id="clock" style="color: #89cff0;"></span>
+    </center>
+</div>
+{% endblock time %}
+
+<!-- BUTTON IN NAVBAR TO LOGOUT (Fixed) -->
+{% block btn-nav %}
+<form id="logout-form" action="{% url 'logout' %}" method="POST" style="display: inline;">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-outline-danger btn-sm border-light text-light">Logout</button>
+</form>
+{% endblock btn-nav %}
+
+{% block content %}
+<div class="container">
+
+    <br><br>
+
+    <!-- Add Button, Download PDF Button and Welcome -->
+    <div class="d-flex justify-content-between">
+        <div>
+            <a id="add-patient" href="{% url 'add_patient' %}" class="btn btn-outline-primary btn-sm">
+                <i class="fas fa-plus"></i>&nbsp;&nbsp; Add Patient
+            </a>
+            <a href="{% url 'download_patient_pdf' %}" class="btn btn-success btn-sm ms-2">
+                <i class="fas fa-file-pdf"></i>&nbsp;&nbsp;Download All Patient Data (PDF)
+            </a>
+        </div>
+        <form action="{% url 'download_patients_by_date' %}" method="get" class="d-inline-flex align-items-center">
+            <input type="date" name="date" class="form-control me-2" required>
+            <button type="submit" class="btn btn-outline-primary">
+              <i class="bi bi-calendar-date"></i> Download by Date
+            </button>
+          </form>
+          
+        <span class="welcome">
+            Welcome: <strong><span class="text-primary">{{ user.get_username }}</span></strong>
+        </span>
+    </div>
+
+    <!-- Input Search + Button Search + Reset Button -->
+    <form action="" method="GET">
+        <div class="input-group input-group-sm mb-3 mt-4">
+            <input type="text" name="q" class="form-control" placeholder="Search for..." value="{{ request.GET.q }}">
+            <button class="btn btn-secondary"><i class="fas fa-search"></i></button>
+            <a href="{% url 'backend' %}" class="btn btn-dark" style="margin-left: 2px;">
+                <i class="fas fa-sync-alt"></i>
+            </a>
+        </div>
+    </form>
+
+    <!-- Patient Table -->
+    <center>
+        <table class="table table-bordered table-sm mt-4" style="text-align: center; font-size:14px;">
+            <thead class="table-primary">
+                <tr>
+                    <th style="width: 21%">Name</th>
+                    <th style="width: 15%">Phone</th>
+                    <th style="width: 21%">Email</th>
+                    <th style="width: 8%">Age</th>
+                    <th style="width: 7%">Gender</th>
+                    <th style="width: 18%">Registered</th>
+                    <th style="width: 10%" colspan="2">Action</th>
+                </tr>
+            </thead>
+            {% for patient in patients %}
+            <tr class="txt-sm" id="chk_td">
+                <td>{{ patient.name }}</td>
+                <td>{{ patient.phone }}</td>
+                <td>{{ patient.email }}</td>
+                <td>{{ patient.age }}</td>
+                <td>{{ patient.gender }}</td>
+                <td>{{ patient.created_at|date:'m/d/Y (H:i)' }}</td>
+                <td>
+                    <a href="{% url 'patient' patient.id %}" class="btn-action btn btn-primary" title="Edit Patient">
+                        <i class="fas fa-pen"></i>
+                    </a>
+                </td>
+                <td>
+                    <button class="btn-action btn btn-secondary" title="Delete patient" data-bs-toggle="modal"
+                        data-bs-target="#deleteModal{{ patient.pk }}">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                <!-- View Button -->
+                <button class="btn btn-sm btn-info" onclick="viewPatient({{ patient.id }})">
+                    <i class="bi bi-eye"></i> View
+                  </button>
+                                 
+                </td>
+            </tr>
+
+            <!-- Modal for Delete -->
+            <div class="modal fade" id="deleteModal{{ patient.pk }}" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">
+                                <i class="fas fa-trash-alt"></i>&nbsp;&nbsp; Delete Patient
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body text-center text-danger txt-sm">
+                            <i class="fas fa-times-circle fa-5x mb-4 mt-2"></i>
+                            <p>DO YOU WANT TO DELETE THIS PATIENT ???</p>
+                            <div class="text-dark mt-3 mb-2">Patient: <strong>{{ patient.name }}</strong></div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary btn-sm txt-sm" data-bs-dismiss="modal">Cancel</button>
+                            <form action="{% url 'delete_patient' patient.id %}" method="POST">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-outline-danger btn-sm txt-sm">Delete</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </table>
+    </center>
+   <!-- View Patient Modal -->
+<!-- View Modal -->
+<div class="modal fade" id="viewModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content border-0 shadow">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title">Patient Details</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row mb-2">
+            <div class="col-md-6"><strong>Name:</strong> <span id="viewName"></span></div>
+            <div class="col-md-6"><strong>Phone:</strong> <span id="viewPhone"></span></div>
+          </div>
+          <div class="row mb-2">
+            <div class="col-md-6"><strong>Email:</strong> <span id="viewEmail"></span></div>
+            <div class="col-md-3"><strong>Age:</strong> <span id="viewAge"></span></div>
+            <div class="col-md-3"><strong>Gender:</strong> <span id="viewGender"></span></div>
+          </div>
+          <div class="mb-3">
+            <strong>Note:</strong>
+            <div class="p-3 bg-light rounded border" style="white-space: pre-line;" id="viewNote"></div>
+          </div>
+          <div class="text-end text-muted"><small>Created: <span id="viewCreated"></span></small></div>
+        </div>
+        <div class="modal-footer">
+          <a id="downloadPDFBtn" class="btn btn-outline-primary">
+            <i class="bi bi-download"></i> Download PDF
+          </a>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+
+    <!-- Pagination -->
+    {% if patients.has_other_pages %}
+    <nav class="mt-5" id="pagination">
+        <ul class="pagination justify-content-left">
+            {% if patients.has_previous %}
+            <li class="page-item">
+                <a href="?page=1" class="btn btn-outline-primary mb-4">First</a>
+                <a href="?page={{ patients.previous_page_number }}" class="page-link">
+                    <i class="fas fa-angle-double-left"></i>
+                </a>
+            </li>
+            {% endif %}
+            {% for i in patients.paginator.page_range %}
+                {% if patients.number == i %}
+                <li class="page-item active"><span class="page-link">{{ i }}</span></li>
+                {% else %}
+                <li class="page-item"><a href="?page={{ i }}" class="page-link">{{ i }}</a></li>
+                {% endif %}
+            {% endfor %}
+            {% if patients.has_next %}
+            <li class="page-item">
+                <a href="?page={{ patients.next_page_number }}" class="page-link">
+                    <i class="fas fa-angle-double-right"></i>
+                </a>
+                <a href="?page={{ patients.paginator.num_pages }}" class="btn btn-outline-primary mb-4">Last</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+
+    <!-- SweetAlert Message -->
+    {% for message in messages %}
+    {% if message.tags == 'success' %}
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script>
+        swal("Perfect!", "{{ message }}", "success");
+    </script>
+    {% endif %}
+    {% endfor %}
+
+    <!-- No Data Message -->
+    <span style="font-size: 1.5rem;" class="text-danger fw-bold text-center" id="no-data"></span>
+
+</div>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll('.view-btn').forEach(function (button) {
+            button.addEventListener('click', function () {
+                const id = this.getAttribute('data-id');
+                fetch(`/get_patient_details/${id}/`)
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('v_name').textContent = data.name;
+                        document.getElementById('v_phone').textContent = data.phone;
+                        document.getElementById('v_email').textContent = data.email;
+                        document.getElementById('v_age').textContent = data.age;
+                        document.getElementById('v_gender').textContent = data.gender;
+                        document.getElementById('v_note').textContent = data.note;
+                        document.getElementById('v_created_at').textContent = data.created_at;
+                        $('#viewPatientModal').modal('show');
+                    });
+            });
+        });
+    });
+    
+    function printPatient() {
+        const printContents = document.getElementById('printableContent').innerHTML;
+        const win = window.open('', '', 'height=600,width=800');
+        win.document.write('<html><head><title>Print Patient</title></head><body>');
+        win.document.write(printContents);
+        win.document.write('</body></html>');
+        win.document.close();
+        win.focus();
+        win.print();
+        win.close();
+    }
+
+
+    function viewPatient(id) {
+    fetch(`/get_patient/${id}/`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Network response was not OK");
+            }
+            return response.json();
+        })
+        .then(data => {
+            document.getElementById('viewName').textContent = data.name;
+            document.getElementById('viewPhone').textContent = data.phone;
+            document.getElementById('viewEmail').textContent = data.email;
+            document.getElementById('viewAge').textContent = data.age;
+            document.getElementById('viewGender').textContent = data.gender;
+            document.getElementById('viewNote').textContent = data.note;
+            document.getElementById('viewCreated').textContent = data.created_at;
+            
+            document.getElementById('downloadPDFBtn').href = `/download_patient_pdf/${id}/`;
+
+
+        const myModal = new bootstrap.Modal(document.getElementById('viewModal'));
+        myModal.show();
+    })
+    .catch(error => {
+        alert("Could not load patient details");
+        console.error("Error:", error);
+    })
+}
+</script>
+
+    
+{% endblock %}

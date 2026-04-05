@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #333; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+    <h2>Patient Report</h2>
+    <table>
+        <tr>
+            <th>Name</th><th>Phone</th><th>Email</th><th>Age</th><th>Created</th>
+        </tr>
+        {% for patient in patients %}
+        <tr>
+            <td>{{ patient.name }}</td>
+            <td>{% if patient.phone %}+91-{{ patient.phone }}{% endif %}</td>
+            <td>{{ patient.email }}</td>
+            <td>{{ patient.age }}</td>
+            <td>{{ patient.created_at|date:"Y-m-d" }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

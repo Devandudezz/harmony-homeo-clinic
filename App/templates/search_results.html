@@ -1,0 +1,28 @@
+<form method="get">
+    <input type="text" name="q" placeholder="Search by name">
+    <input type="date" name="date">
+    <button type="submit">Search</button>
+</form>
+<form method="get" action="{% url 'search_patients' %}">
+    <input type="text" name="q" value="{{ q }}" placeholder="Search by name">
+    <input type="date" name="date" value="{{ date }}">
+    <button type="submit">Search</button>
+</form>
+
+<a href="{% url 'download_all_patients_pdf' %}">Download All as PDF</a>
+<a href="{% url 'download_by_date_pdf' %}?date={{ date }}">Download Filtered as PDF</a>
+
+
+<table>
+    <tr>
+        <th>Name</th><th>Phone</th><th>Email</th><th>Age</th>
+    </tr>
+    {% for patient in patients %}
+    <tr>
+        <td>{{ patient.name }}</td>
+        <td>+91-{{ patient.phone }}</td>
+        <td>{{ patient.email }}</td>
+        <td>{{ patient.age }}</td>
+    </tr>
+    {% endfor %}
+</table>

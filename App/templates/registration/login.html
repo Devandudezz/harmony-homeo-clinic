@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% load static %}
+
+<!-- For Title on the Browser Tab  -->
+{% block title %}Login{% endblock title %}
+
+<!-- NAVBAR CONTENT ICON + TITLE  -->
+{% block nav-content %}
+<i class="fas fa-stethoscope"></i>&nbsp;&nbsp; Login
+{% endblock nav-content %}
+
+<!-- BUTTON IN NAVBAR TO GO BACK ON THE FRONT END PAGE   -->
+{% block btn-nav %}
+<a href="{% url 'frontend' %}" class="btn btn-outline-primary btn-sm border-light text-light" id="btn-nav">Go Back</a>
+{% endblock btn-nav %}
+
+<!-- PAGE CONTENT  -->
+{% block content %}
+<div class="container mt-5">
+    <div class="card p-3 border-dark">
+        <span class="btn btn-outline-dark mt-3" id="title-login"><i class="fas fa-lock"></i>&nbsp;&nbsp;RESTRICTED ACCESS</span>
+        <form action="" method="POST" autocomplete="off" novalidate>
+            {% csrf_token %}
+            <div class="input-group mb-3 mt-5">
+                <span class="input-group-text icon-width txt-sm">
+                    <i class="fas fa-user-alt"></i>
+                </span>
+                <input type="text" class="form-control txt-sm" name="username" id="username" placeholder="username">
+            </div>
+            <div class="input-group mb-3">
+                <span class="input-group-text icon-width txt-sm">
+                    <i class="fas fa-lock"></i>
+                </span>
+                <input type="password" class="form-control txt-sm" name="password" id="password" placeholder="password">
+            </div>
+            <input type="submit" value="Enter" class="btn btn-primary btn-sm mt-4 mb-3" id="btn-enter">
+        </form>
+    </div>
+
+    <!-- Messages from Backend  -->
+    {% if form.errors %}
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script>
+        swal("Denied !", "Enter your data correctlt.", "error");
+    </script>
+    {% endif %}
+
+    <!-- Heart Pulse  -->
+    <center id="heart">
+        <i class="text-primary fas fa-heartbeat fa-10x blink_me"></i>
+    </center>
+
+</div>
+{% endblock content %}

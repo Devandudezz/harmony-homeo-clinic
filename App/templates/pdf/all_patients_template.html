@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { font-family: DejaVu Sans; }
+    h2 { text-align: center; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      font-size: 12px;
+    }
+    th, td {
+      border: 1px solid #aaa;
+      padding: 6px;
+      text-align: left;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+  </style>
+</head>
+<body>
+  <h2>Harmony Homeo Clinic – All Patients</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Phone</th>
+        <th>Email</th>
+        <th>Age</th>
+        <th>Gender</th>
+        <th>Date</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for patient in patients %}
+      <tr>
+        <td>{{ patient.name }}</td>
+        <td>+91-{{ patient.phone }}</td>
+        <td>{{ patient.email|default:"N/A" }}</td>
+        <td>{{ patient.age|default:"N/A" }}</td>
+        <td>{{ patient.gender }}</td>
+        <td>{{ patient.created_at|date:"Y-m-d" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</body>
+</html>

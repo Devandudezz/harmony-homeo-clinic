@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% load static %}
+
+<!-- Title -->
+{% block title %}Add Patient{% endblock title %}
+
+<!-- Navbar -->
+{% block nav-content %}
+<i class="fas fa-user-plus"></i>&nbsp;&nbsp;Add Patient
+{% endblock nav-content %}
+
+<!-- Time Block -->
+{% block time %}
+<div class="col-sm">
+    <center><span id="clock" style="color: #89cff0;"></span></center>
+</div>
+{% endblock time %}
+
+<!-- Logout Button -->
+{% block btn-nav %}
+<a class="btn btn-outline-danger btn-sm border-light text-light" id="btn-nav" data-bs-toggle="modal" data-bs-target="#logoutModal">Logout</a>
+{% endblock btn-nav %}
+
+<!-- Main Content -->
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-lg-12">
+
+            <!-- Header -->
+            <div class="card card-body border-dark text-primary mt-5">
+                <span class="text-center txt-sm">FILL OUT THE FORM BELOW</span>
+            </div>
+
+            <!-- Django Messages -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert {{ message.tags }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+
+            <!-- Form -->
+            <form action="{% url 'add_patient' %}" method="POST" autocomplete="off" enctype="multipart/form-data" class="card p-3 border-dark mt-3 mb-5">
+                {% csrf_token %}
+
+                <!-- Name -->
+                <div class="input-group input-group-sm mb-3">
+                    <span class="input-group-text side-label"><span class="txt-sm">Name</span></span>
+                    <input type="text" name="name" id="name" class="form-control" placeholder="First and Last name" required maxlength="40">
+                </div>
+
+                <!-- Phone -->
+                <div class="input-group input-group-sm mb-3">
+                    <span class="input-group-text side-label"><span class="txt-sm">Phone</span></span>
+                    <input type="text" name="phone" id="phone" class="form-control" placeholder="Patient phone">
+                </div>
+
+                <!-- Email -->
+                <div class="input-group input-group-sm mb-3">
+                    <span class="input-group-text side-label"><span class="txt-sm">Email</span></span>
+                    <input type="email" name="email" id="email" class="form-control" placeholder="Patient email" maxlength="40">
+                </div>
+
+                <!-- Age -->
+                <div class="input-group input-group-sm mb-3">
+                    <span class="input-group-text side-label"><span class="txt-sm">Age</span></span>
+                    <input type="number" name="age" id="age" class="form-control" placeholder="Patient age" required>
+                </div>
+
+                <!-- Gender -->
+                <div class="input-group input-group-sm mb-3">
+                    <label for="gender" class="input-group-text side-label"><span class="txt-sm">Gender</span></label>
+                    <select name="gender" id="gender" class="form-select" required>
+                        <option value="" hidden>Select the gender</option>
+                        <option value="M">Male</option>
+                        <option value="F">Female</option>
+                    </select>
+                </div>
+
+                <!-- Registered Date (Current datetime prefilled) -->
+                <div class="mb-3">
+                    <label for="created_at" class="form-label">Registered Date</label>
+                    <input type="datetime-local" class="form-control" id="created_at" name="created_at"
+                           value="{% now 'Y-m-d\\TH:i' %}">
+                </div>
+
+                <!-- Note -->
+                <div class="form-group">
+                    <textarea name="note" id="note" rows="7" class="form-control txt-sm" placeholder="Description is optional...."></textarea>
+                </div>
+
+                <!-- Buttons -->
+                <div class="d-grid gap-2 mt-2">
+                    <button id="btn-add" type="submit" class="btn btn-primary btn-sm txt-sm">
+                        <i class="fas fa-plus"></i>&nbsp;&nbsp; Add
+                    </button>
+                    <a href="{% url 'backend' %}" class="btn btn-dark btn-sm txt-sm">
+                        <i class="fas fa-chevron-left"></i>&nbsp;&nbsp;Back
+                    </a>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+{% endblock content %}
